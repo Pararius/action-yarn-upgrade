@@ -1,0 +1,21 @@
+name: 'Yarn upgrade'
+description: 'Runs a yarn upgrade'
+inputs:
+  working-dir:
+    description: 'Directory of the yarn.lock'
+    required: true
+    default: './'
+  yarn-cache:
+    description: 'Path to yarn cache'
+    required: true
+    default: /tmp/yarn-cache
+runs:
+  using: "composite"
+  steps:
+    - name: Install dependencies
+      shell: bash
+      run: yarn install --no-progress --preferred-cache-folder ${{ inputs.yarn-cache }} --cwd ${{ inputs.working-dir }}
+
+    - name: Upgrade dependencies
+      shell: bash
+      run: yarn upgrade --no-progress --preferred-cache-folder ${{ inputs.yarn-cache }} --cwd ${{ inputs.working-dir }}
