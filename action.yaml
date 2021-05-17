@@ -13,17 +13,13 @@ inputs:
     description: 'Path to yarn cache'
     required: true
     default: /tmp/yarn-cache
-  check-outdated:
-    description: 'Check if we should return the outdated packages'
-    required: true
-    default: '0'
 outputs:
   diff:
     description: "Script output with the changed versions"
     value: ${{ steps.get-diff.outputs.diff }}
   outdated:
     description: "Script output with the outdated packages that are left after updating"
-    value: ${{ steps.get-outdated.outputs.outdated }}
+    value: ${{ steps.get-post-update-outdated.outputs.outdated }}
 runs:
   using: "composite"
   steps:
@@ -46,18 +42,18 @@ runs:
 
     - name: Check yarn outdated
       shell: bash
-      id: get-yarn-outdated
+      id: get-post-update-outdated
       run: |
         set +e
         outdated=$( ! yarn outdated --preferred-cache-folder ${{ inputs.yarn-cache }} --cwd ${{ inputs.working-dir }} | sed '1,6d; $d')
         outdated="${outdated//$'\n'/'\n'}"
-        [ "${{ inputs.check-outdated }}" = "1" ] && echo "::set-output name=outdated::$outdated"
+        echo "::set-output name=outdated::$outdated"
 
     - name: Make diff
       shell: bash
       id: get-diff
       run: |
-        diff=$(comm <(echo "${{ steps.get-pre-update-outdated.outputs.outdated }}") <(echo "${{ steps.get-yarn-outdated.outputs.unformatted-outdated }}") -23
+        diff=$(comm <(echo "${{ steps.get-pre-update-outdated.outputs.outdated }}") <(echo "${{ steps.get-post-update-outdated.outputs.unformatted-outdated }}") -23
         diff="${diff//'%'/'%25'}"
         diff="${diff//$'\n'/'%0A'}"
         diff="${diff//$'\r'/'%0D'}"
