@@ -35,7 +35,9 @@ runs:
       shell: bash
       id: get-pre-update-outdated
       run: |
-        outdated=$(! yarn outdated --preferred-cache-folder ${{ inputs.yarn-cache }} --cwd ${{ inputs.working-dir }} | sed '1,5d; $d')
+        set +e
+        outdated=$( ! yarn outdated --preferred-cache-folder ${{ inputs.yarn-cache }} --cwd ${{ inputs.working-dir }} | sed '1,6d; $d')
+        outdated="${outdated//$'\n'/'\n'}"
         echo "::set-output name=outdated::$outdated"
 
     - name: Upgrade dependencies
@@ -46,8 +48,8 @@ runs:
       shell: bash
       id: get-yarn-outdated
       run: |
-        outdated=$(! yarn outdated --preferred-cache-folder ${{ inputs.yarn-cache }} --cwd ${{ inputs.working-dir }} | sed '1,5d; $d')
-        echo "::set-output name=unformatted-outdated::$outdated"
+        set +e
+        outdated=$( ! yarn outdated --preferred-cache-folder ${{ inputs.yarn-cache }} --cwd ${{ inputs.working-dir }} | sed '1,6d; $d')
         outdated="${outdated//$'\n'/'\n'}"
         [ "${{ inputs.check-outdated }}" = "1" ] && echo "::set-output name=outdated::$outdated"
 
@@ -55,7 +57,7 @@ runs:
       shell: bash
       id: get-diff
       run: |
-        diff=$(comm <(echo ${{ steps.get-pre-update-outdated.outputs.outdated }}}) <(echo ${{ steps.get-yarn-outdated.outputs.unformatted-outdated }}) -23
+        diff=$(comm <(echo "${{ steps.get-pre-update-outdated.outputs.outdated }}") <(echo "${{ steps.get-yarn-outdated.outputs.unformatted-outdated }}") -23
         diff="${diff//'%'/'%25'}"
         diff="${diff//$'\n'/'%0A'}"
         diff="${diff//$'\r'/'%0D'}"
