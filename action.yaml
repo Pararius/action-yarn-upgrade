@@ -9,6 +9,21 @@ inputs:
     description: 'Path to yarn cache'
     required: true
     default: /tmp/yarn-cache
+  npm-version:
+    description: 'Path to yarn cache'
+    required: true
+    default: /tmp/yarn-cache
+  check-outdated:
+    description: 'Check if we should return the outdated packages'
+    required: true
+    default: '0'
+outputs:
+  diff:
+    description: "Script output with the changed versions"
+    value: ${{ steps.get-diff.outputs.diff }}
+  outdated:
+    description: "Script output with the outdated packages that are left after updating"
+    value: ${{ steps.get-outdated.outputs.outdated }}
 runs:
   using: "composite"
   steps:
@@ -16,6 +31,32 @@ runs:
       shell: bash
       run: yarn install --no-progress --preferred-cache-folder ${{ inputs.yarn-cache }} --cwd ${{ inputs.working-dir }}
 
+    - name: Check pre update outdated
+      shell: bash
+      id: get-pre-update-outdated
+      run: |
+        [ "${{ inputs.check-outdated }}" = "1" ] && outdated=$(! yarn outdated --preferred-cache-folder ${{ inputs.yarn-cache }} --cwd ${{ inputs.working-dir }} | sed '1,5d; $d')
+        echo "::set-output name=outdated::$outdated"
+
     - name: Upgrade dependencies
       shell: bash
       run: yarn upgrade --no-progress --preferred-cache-folder ${{ inputs.yarn-cache }} --cwd ${{ inputs.working-dir }}
+
+    - name: Check yarn outdated
+      shell: bash
+      id: get-yarn-outdated
+      run: |
+        [ "${{ inputs.check-outdated }}" = "1" ] && outdated=$(! yarn outdated --preferred-cache-folder ${{ inputs.yarn-cache }} --cwd ${{ inputs.working-dir }} | sed '1,5d; $d')
+        echo "::set-output name=unformatted-outdated::$outdated"
+        outdated="${outdated//$'\n'/'\n'}"
+        echo "::set-output name=outdated::$outdated"
+
+    - name: Make diff
+      shell: bash
+      id: get-diff
+      run: |
+        diff=$(comm <(echo ${{ steps.get-pre-update-outdated.outputs.outdated }}}) <(echo ${{ steps.get-yarn-outdated.outputs.unformatted-outdated }}) -23
+        diff="${diff//'%'/'%25'}"
+        diff="${diff//$'\n'/'%0A'}"
+        diff="${diff//$'\r'/'%0D'}"
+        echo "::set-output name=diff::$diff"
