@@ -34,7 +34,6 @@ runs:
         set +e
         outdated=$( ! yarn outdated --preferred-cache-folder ${{ inputs.yarn-cache }} --cwd ${{ inputs.working-dir }} | sed '1,6d; $d')
         outdated="${outdated//$'\n'/'\n'}"
-        echo "$outdated"
         echo "::set-output name=outdated::$outdated"
 
     - name: Upgrade dependencies
@@ -48,7 +47,6 @@ runs:
         set +e
         outdated=$( ! yarn outdated --preferred-cache-folder ${{ inputs.yarn-cache }} --cwd ${{ inputs.working-dir }} | sed '1,6d; $d')
         outdated="${outdated//$'\n'/'\n'}"
-        echo "$outdated"
         echo "::set-output name=outdated::$outdated"
 
     - name: Make diff
@@ -59,5 +57,4 @@ runs:
         diff="${diff//'%'/'%25'}"
         diff="${diff//$'\n'/'%0A'}"
         diff="${diff//$'\r'/'%0D'}"
-        echo "$diff"
         echo "::set-output name=diff::$diff"
