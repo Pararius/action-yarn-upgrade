@@ -36,6 +36,7 @@ runs:
     - name: Check pre update outdated
       shell: bash
       id: get-pre-update-outdated
+      # strip ansi colors and fix line breaks
       run: |
         set +e
         cd ${{ inputs.working-dir }}
