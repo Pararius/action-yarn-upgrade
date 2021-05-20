@@ -38,7 +38,8 @@ runs:
         set +e
         cd ${{ inputs.working-dir }}
         outdated=$( check-outdated --depth 1000 --ignore-dev-dependencies --columns name,current,latest,changes | sed '1,5d' | head -n -6 )
-        outdated="${outdated//$'\n'/'\n'}"
+        echo $outdated
+#        outdated="${outdated//$'\n'/'\n'}"
         echo "::set-output name=outdated::$outdated"
 
     - name: Upgrade dependencies
@@ -52,7 +53,8 @@ runs:
         set +e
         cd ${{ inputs.working-dir }}
         outdated=$( check-outdated --depth 1000 --ignore-dev-dependencies --columns name,current,latest,changes | sed '1,5d' | head -n -6 )
-        outdated="${outdated//$'\n'/'\n'}"
+        echo $outdated
+#        outdated="${outdated//$'\n'/'\n'}"
         echo "::set-output name=outdated::$outdated"
 
     - name: Make diff
@@ -60,6 +62,7 @@ runs:
       id: get-diff
       run: |
         diff=$(comm <(echo "${{ steps.get-pre-update-outdated.outputs.outdated }}") <(echo "${{ steps.get-post-update-outdated.outputs.unformatted-outdated }}") -23)
+        echo $diff
         diff="${diff//'%'/'%25'}"
         diff="${diff//$'\n'/'%0A'}"
         diff="${diff//$'\r'/'%0D'}"
