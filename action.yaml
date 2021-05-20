@@ -27,7 +27,7 @@ runs:
       shell: bash
       run: |
         yarn global add check-outdated --preferred-cache-folder ${{ inputs.yarn-cache }}
-        echo "::add-path::$(yarn global bin)"
+        echo "$(yarn global bin)" >> $GITHUB_PATH
 
     - name: Install dependencies
       shell: bash
