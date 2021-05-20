@@ -62,7 +62,6 @@ runs:
       id: get-diff
       run: |
         diff=$(comm <(echo "${{ steps.get-pre-update-outdated.outputs.outdated }}") <(echo "${{ steps.get-post-update-outdated.outputs.unformatted-outdated }}") -23)
-        echo $diff
         diff="${diff//'%'/'%25'}"
         diff="${diff//$'\n'/'%0A'}"
         diff="${diff//$'\r'/'%0D'}"
