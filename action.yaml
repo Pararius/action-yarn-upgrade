@@ -39,7 +39,6 @@ runs:
         cd ${{ inputs.working-dir }}
         outdated=$( check-outdated --depth 1000 --ignore-dev-dependencies --columns name,current,latest,changes | sed '1,5d' | head -n -6 )
         echo $outdated
-#        outdated="${outdated//$'\n'/'\n'}"
         echo "::set-output name=outdated::$outdated"
 
     - name: Upgrade dependencies
@@ -54,9 +53,9 @@ runs:
         cd ${{ inputs.working-dir }}
         outdated=$( check-outdated --depth 1000 --ignore-dev-dependencies --columns name,current,latest,changes | sed '1,5d' | head -n -6 )
         echo $outdated
-#        outdated="${outdated//$'\n'/'\n'}"
         echo "::set-output name=outdated::$outdated"
 
+  #        outdated="${outdated//$'\n'/'\n'}"
     - name: Make diff
       shell: bash
       id: get-diff
