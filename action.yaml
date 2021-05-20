@@ -40,7 +40,7 @@ runs:
         set +e
         cd ${{ inputs.working-dir }}
         outdated=$( $(yarn global bin)/check-outdated --depth 1000 --ignore-dev-dependencies --columns name,current,latest,changes | sed '1,5d' | head -n -6 )
-        outdated=echo "$outdated" | sed -r "s/\x1B\[([0-9]{1,3}(;[0-9]{1,2})?)?[mGK]//g" | sed -r "s/\\[([0-9]{1,3}(;[0-9]{1,2})?)?[mGK]//g"
+        outdated=$(echo "$outdated" | sed -r "s/\x1B\[([0-9]{1,3}(;[0-9]{1,2})?)?[mGK]//g" | sed -r "s/\\[([0-9]{1,3}(;[0-9]{1,2})?)?[mGK]//g" )
         outdated="${outdated//$'\n'/'\n'}"
         echo "::set-output name=outdated::$outdated"
 
@@ -55,7 +55,7 @@ runs:
         set +e
         cd ${{ inputs.working-dir }}
         outdated=$( $(yarn global bin)/check-outdated --depth 1000 --ignore-dev-dependencies --columns name,current,latest,changes | sed '1,5d' | head -n -6 )
-        outdated=echo "$outdated" | sed -r "s/\x1B\[([0-9]{1,3}(;[0-9]{1,2})?)?[mGK]//g" | sed -r "s/\\[([0-9]{1,3}(;[0-9]{1,2})?)?[mGK]//g"
+        outdated=$(echo "$outdated" | sed -r "s/\x1B\[([0-9]{1,3}(;[0-9]{1,2})?)?[mGK]//g" | sed -r "s/\\[([0-9]{1,3}(;[0-9]{1,2})?)?[mGK]//g" )
         outdated="${outdated//$'\n'/'\n'}"
         echo "::set-output name=outdated::$outdated"
 
