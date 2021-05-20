@@ -23,6 +23,10 @@ outputs:
 runs:
   using: "composite"
   steps:
+    - name: Install outdated tool
+      shell: bash
+      run: yarn global add check-outdated --preferred-cache-folder ${{ inputs.yarn-cache }}
+
     - name: Install dependencies
       shell: bash
       run: yarn install --no-progress --preferred-cache-folder ${{ inputs.yarn-cache }} --cwd ${{ inputs.working-dir }}
@@ -32,7 +36,8 @@ runs:
       id: get-pre-update-outdated
       run: |
         set +e
-        outdated=$( ! yarn outdated --preferred-cache-folder ${{ inputs.yarn-cache }} --cwd ${{ inputs.working-dir }} | sed '1,6d; $d')
+        cd ${{ inputs.working-dir }}
+        outdated=$( check-outdated --depth 1000 --ignore-dev-dependencies --columns name,current,latest,changes | sed '1,5d' | head -n -6 )
         outdated="${outdated//$'\n'/'\n'}"
         echo "::set-output name=outdated::$outdated"
 
@@ -45,7 +50,8 @@ runs:
       id: get-post-update-outdated
       run: |
         set +e
-        outdated=$( ! yarn outdated --preferred-cache-folder ${{ inputs.yarn-cache }} --cwd ${{ inputs.working-dir }} | sed '1,6d; $d')
+        cd ${{ inputs.working-dir }}
+        outdated=$( check-outdated --depth 1000 --ignore-dev-dependencies --columns name,current,latest,changes | sed '1,5d' | head -n -6 )
         outdated="${outdated//$'\n'/'\n'}"
         echo "::set-output name=outdated::$outdated"
 
