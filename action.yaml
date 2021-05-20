@@ -25,7 +25,9 @@ runs:
   steps:
     - name: Install outdated tool
       shell: bash
-      run: yarn global add check-outdated --preferred-cache-folder ${{ inputs.yarn-cache }}
+      run: |
+        yarn global add check-outdated --preferred-cache-folder ${{ inputs.yarn-cache }}
+        echo "::add-path::$(yarn global bin)"
 
     - name: Install dependencies
       shell: bash
@@ -37,7 +39,7 @@ runs:
       run: |
         set +e
         cd ${{ inputs.working-dir }}
-        outdated=$( check-outdated --depth 1000 --ignore-dev-dependencies --columns name,current,latest,changes | sed '1,5d' | head -n -6 )
+        outdated=$( $(yarn global bin)/check-outdated --depth 1000 --ignore-dev-dependencies --columns name,current,latest,changes | sed '1,5d' | head -n -6 )
         echo $outdated
         echo "::set-output name=outdated::$outdated"
 
@@ -51,7 +53,7 @@ runs:
       run: |
         set +e
         cd ${{ inputs.working-dir }}
-        outdated=$( check-outdated --depth 1000 --ignore-dev-dependencies --columns name,current,latest,changes | sed '1,5d' | head -n -6 )
+        outdated=$( $(yarn global bin)/check-outdated --depth 1000 --ignore-dev-dependencies --columns name,current,latest,changes | sed '1,5d' | head -n -6 )
         echo $outdated
         echo "::set-output name=outdated::$outdated"
 
