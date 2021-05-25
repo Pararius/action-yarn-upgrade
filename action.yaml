@@ -51,14 +51,14 @@ runs:
         set +e
         cd ${{ inputs.working-dir }}
         $( ! $(yarn global bin)/check-outdated --depth 1000 --ignore-dev-dependencies --columns name,current,latest,changes > ${{ runner.temp }}/post-update )
-        echo "::set-output name=outdated::$(cat ${{ runner.temp }}/post-update)"
+        echo "::set-output name=outdated::$( cat ${{ runner.temp }}/post-update )"
 
     - name: Make diff
       shell: bash
       id: get-diff
       # strip ansi colors and fix line breaks
       run: |
-        diff=$(comm ${{ runner.temp }}/pre-update ${{ runner.temp }}/post-update) -23)
+        diff=$(comm ${{ runner.temp }}/pre-update ${{ runner.temp }}/post-update -23)
         diff=$(echo "$diff" | sed -r "s/\x1B\[([0-9]{1,3}(;[0-9]{1,2})?)?[mGK]//g" | sed -r "s/\\[([0-9]{1,3}(;[0-9]{1,2})?)?[mGK]//g" )
         diff="${diff//'%'/'%25'}"
         diff="${diff//$'\r'/'%0D'}"
