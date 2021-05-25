@@ -38,7 +38,7 @@ runs:
       run: |
         set +e
         cd ${{ inputs.working-dir }}
-        $(yarn global bin)/check-outdated --depth 1000 --ignore-dev-dependencies --columns name,current,latest,changes
+        $( ! $(yarn global bin)/check-outdated --depth 1000 --ignore-dev-dependencies --columns name,current,latest,changes > ${{ runner.temp }}/post-update )
 
     - name: Upgrade dependencies
       shell: bash
