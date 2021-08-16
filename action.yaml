@@ -20,8 +20,7 @@ runs:
     - name: Install outdated tool
       shell: bash
       run: |
-        yarn global add check-outdated
-        echo "$(yarn global bin)" >> $GITHUB_PATH
+        npm install -g check-outdated
 
     - run: yarn versions
       shell: bash
@@ -34,7 +33,7 @@ runs:
       run: |
         set +e
         cd ${{ inputs.working-dir }}
-        $( ! $(yarn global bin)/check-outdated --depth 1000 --ignore-dev-dependencies --columns name,current,latest,changes > ${{ runner.temp }}/pre-update )
+        $( ! check-outdated --depth 1000 --ignore-dev-dependencies --columns name,current,latest,changes > ${{ runner.temp }}/pre-update )
 
     - name: Upgrade dependencies
       shell: bash
@@ -46,7 +45,7 @@ runs:
       run: |
         set +e
         cd ${{ inputs.working-dir }}
-        $( ! $(yarn global bin)/check-outdated --depth 1000 --ignore-dev-dependencies --columns name,current,latest,changes > ${{ runner.temp }}/post-update )
+        $( ! check-outdated --depth 1000 --ignore-dev-dependencies --columns name,current,latest,changes > ${{ runner.temp }}/post-update )
         echo "::set-output name=outdated::$(cat ${{ runner.temp }}/post-update)"
 
     - name: Make diff
