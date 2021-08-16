@@ -23,6 +23,8 @@ runs:
         yarn global add check-outdated
         echo "$(yarn global bin)" >> $GITHUB_PATH
 
+    - run: yarn versions
+      shell: bash
     - name: Install dependencies
       shell: bash
       run: yarn install --no-progress --cwd ${{ inputs.working-dir }}
