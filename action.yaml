@@ -5,14 +5,6 @@ inputs:
     description: 'Directory of the yarn.lock'
     required: true
     default: './'
-  yarn-cache:
-    description: 'Path to yarn cache'
-    required: true
-    default: /tmp/yarn-cache
-  npm-version:
-    description: 'Path to yarn cache'
-    required: true
-    default: /tmp/yarn-cache
 outputs:
   diff:
     description: "Script output with the changed versions"
@@ -26,12 +18,12 @@ runs:
     - name: Install outdated tool
       shell: bash
       run: |
-        yarn global add check-outdated --preferred-cache-folder ${{ inputs.yarn-cache }}
+        yarn global add check-outdated
         echo "$(yarn global bin)" >> $GITHUB_PATH
 
     - name: Install dependencies
       shell: bash
-      run: yarn install --no-progress --preferred-cache-folder ${{ inputs.yarn-cache }} --cwd ${{ inputs.working-dir }}
+      run: yarn install --no-progress --cwd ${{ inputs.working-dir }}
 
     - name: Check pre update outdated
       shell: bash
@@ -42,7 +34,7 @@ runs:
 
     - name: Upgrade dependencies
       shell: bash
-      run: yarn upgrade --no-progress --preferred-cache-folder ${{ inputs.yarn-cache }} --cwd ${{ inputs.working-dir }}
+      run: yarn upgrade --no-progress --cwd ${{ inputs.working-dir }}
 
     - name: Check yarn outdated
       shell: bash
