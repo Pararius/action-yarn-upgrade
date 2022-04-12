@@ -29,7 +29,7 @@ runs:
       run: |
         set +e
         cd ${{ inputs.working-dir }}
-        $( ! check-outdated --depth 1000 --ignore-dev-dependencies --columns name,current,latest,changes > ${{ runner.temp }}/pre-update )
+        $( check-outdated --depth 1000 --ignore-dev-dependencies --columns name,current,latest,changes > ${{ runner.temp }}/pre-update ) || true
 
     - name: Upgrade dependencies
       shell: bash
@@ -41,7 +41,7 @@ runs:
       run: |
         set +e
         cd ${{ inputs.working-dir }}
-        $( ! check-outdated --depth 1000 --ignore-dev-dependencies --columns name,current,latest,changes > ${{ runner.temp }}/post-update )
+        $( check-outdated --depth 1000 --ignore-dev-dependencies --columns name,current,latest,changes > ${{ runner.temp }}/post-update ) || true
         echo "::set-output name=outdated::$(cat ${{ runner.temp }}/post-update)"
 
     - name: Make diff
