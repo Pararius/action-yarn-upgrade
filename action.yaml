@@ -42,7 +42,7 @@ runs:
         set +e
         cd ${{ inputs.working-dir }}
         $( check-outdated --depth 1000 --ignore-dev-dependencies --columns name,current,latest,changes > ${{ runner.temp }}/post-update ) || true
-        echo "::set-output name=outdated::$(cat ${{ runner.temp }}/post-update)"
+        echo "outdated=$(cat ${{ runner.temp }}/post-update)" >> $GITHUB_OUTPUT
 
     - name: Make diff
       shell: bash
@@ -55,4 +55,4 @@ runs:
         diff="${diff//'%'/'%25'}"
         diff="${diff//$'\n'/'%0A'}"
         diff="${diff//$'\r'/'%0D'}"
-        echo "::set-output name=diff::$diff"
+        echo "diff=$diff" >> $GITHUB_OUTPUT
