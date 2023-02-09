@@ -15,44 +15,46 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: Install outdated tool
-      shell: bash
-      run: |
-        npm install -g check-outdated
+  - name: Install outdated tool
+    shell: bash
+    run: |
+      npm install -g check-outdated
 
-    - name: Install dependencies
-      shell: bash
-      run: yarn install --no-progress --cwd ${{ inputs.working-dir }}
+  - name: Install dependencies
+    shell: bash
+    working-directory: ${{ inputs.working-dir }}
+    run: yarn install --immutable
 
-    - name: Check pre update outdated
-      shell: bash
-      run: |
-        set +e
-        cd ${{ inputs.working-dir }}
-        $( check-outdated --depth 1000 --ignore-dev-dependencies --columns name,current,latest,changes > ${{ runner.temp }}/pre-update ) || true
+  - name: Check pre update outdated
+    shell: bash
+    working-directory: ${{ inputs.working-dir }}
+    run: |
+      set +e
+      $( check-outdated --depth 1000 --ignore-dev-dependencies --columns name,current,latest,changes > ${{ runner.temp }}/pre-update ) || true
 
-    - name: Upgrade dependencies
-      shell: bash
-      run: yarn upgrade --no-progress --cwd ${{ inputs.working-dir }}
+  - name: Upgrade dependencies
+    shell: bash
+    working-directory: ${{ inputs.working-dir }}
+    run: yarn up
 
-    - name: Check yarn outdated
-      shell: bash
-      id: get-post-update-outdated
-      run: |
-        set +e
-        cd ${{ inputs.working-dir }}
-        $( check-outdated --depth 1000 --ignore-dev-dependencies --columns name,current,latest,changes > ${{ runner.temp }}/post-update ) || true
-        echo "outdated=$(cat ${{ runner.temp }}/post-update)" >> $GITHUB_OUTPUT
+  - name: Check yarn outdated
+    shell: bash
+    working-directory: ${{ inputs.working-dir }}
+    id: get-post-update-outdated
+    run: |
+      set +e
+      $( check-outdated --depth 1000 --ignore-dev-dependencies --columns name,current,latest,changes > ${{ runner.temp }}/post-update ) || true
+      echo "outdated=$(cat ${{ runner.temp }}/post-update)" >> $GITHUB_OUTPUT
 
-    - name: Make diff
-      shell: bash
-      id: get-diff
-      # strip ansi colors and fix line breaks
-      run: |
-        pre=$(cat ${{ runner.temp }}/pre-update | sed '1,5d' | head -n -6 | sed -r "s/\x1B\[([0-9]{1,3}(;[0-9]{1,2})?)?[mGK]//g" | sed -r "s/\\[([0-9]{1,3}(;[0-9]{1,2})?)?[mGK]//g" )
-        post=$(cat ${{ runner.temp }}/post-update | sed '1,5d' | head -n -6 | sed -r "s/\x1B\[([0-9]{1,3}(;[0-9]{1,2})?)?[mGK]//g" | sed -r "s/\\[([0-9]{1,3}(;[0-9]{1,2})?)?[mGK]//g" )
-        diff=$(comm <(echo "$pre") <(echo "$post") -23)
-        diff="${diff//'%'/'%25'}"
-        diff="${diff//$'\n'/'%0A'}"
-        diff="${diff//$'\r'/'%0D'}"
-        echo "diff=$diff" >> $GITHUB_OUTPUT
+  - name: Make diff
+    shell: bash
+    id: get-diff
+    # strip ansi colors and fix line breaks
+    run: |
+      pre=$(cat ${{ runner.temp }}/pre-update | sed '1,5d' | head -n -6 | sed -r "s/\x1B\[([0-9]{1,3}(;[0-9]{1,2})?)?[mGK]//g" | sed -r "s/\\[([0-9]{1,3}(;[0-9]{1,2})?)?[mGK]//g" )
+      post=$(cat ${{ runner.temp }}/post-update | sed '1,5d' | head -n -6 | sed -r "s/\x1B\[([0-9]{1,3}(;[0-9]{1,2})?)?[mGK]//g" | sed -r "s/\\[([0-9]{1,3}(;[0-9]{1,2})?)?[mGK]//g" )
+      diff=$(comm <(echo "$pre") <(echo "$post") -23)
+      diff="${diff//'%'/'%25'}"
+      diff="${diff//$'\n'/'%0A'}"
+      diff="${diff//$'\r'/'%0D'}"
+      echo "diff=$diff" >> $GITHUB_OUTPUT
